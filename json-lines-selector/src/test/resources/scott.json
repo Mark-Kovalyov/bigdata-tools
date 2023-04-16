@@ -1,3 +1,156 @@
 {
-
+  "dept": [
+    {
+      "deptno": 10,
+      "dname": "ACCOUNTING",
+      "loc": "NEW YORK"
+    },
+    {
+      "deptno": 20,
+      "dname": "RESEARCH",
+      "loc": "DALLAS"
+    },
+    {
+      "deptno": 30,
+      "dname": "SALES",
+      "loc": "CHICAGO"
+    },
+    {
+      "deptno": 40,
+      "dname": "OPERATIONS",
+      "loc": "BOSTON"
+    }
+  ],
+  "emp": [
+    {
+      "empno": "7369",
+      "ename": "SMITH",
+      "job": "CLERK",
+      "sal": 800.0,
+      "deptno": "20",
+      "hiredate": "1980-12-17",
+      "depno": "20"
+    },
+    {
+      "empno": "7499",
+      "ename": "ALLEN",
+      "job": "SALESMAN",
+      "sal": 1600.0,
+      "deptno": "30",
+      "comm": 300.0,
+      "hiredate": "1981-02-20",
+      "depno": "30"
+    },
+    {
+      "empno": "7521",
+      "ename": "WARD",
+      "job": "SALESMAN",
+      "sal": 1250.0,
+      "deptno": "30",
+      "comm": 500.0,
+      "hiredate": "1981-02-22",
+      "depno": "30"
+    },
+    {
+      "empno": "7566",
+      "ename": "JONES",
+      "job": "MANAGER",
+      "sal": 2975.0,
+      "deptno": "20",
+      "hiredate": "1981-04-02",
+      "depno": "20"
+    },
+    {
+      "empno": "7654",
+      "ename": "MARTIN",
+      "job": "SALESMAN",
+      "sal": 1250.0,
+      "deptno": "30",
+      "comm": 1400.0,
+      "hiredate": "1981-09-28",
+      "depno": "30"
+    },
+    {
+      "empno": "7698",
+      "ename": "BLAKE",
+      "job": "MANAGER",
+      "sal": 2850.0,
+      "deptno": "30",
+      "hiredate": "1981-05-01",
+      "depno": "30"
+    },
+    {
+      "empno": "7782",
+      "ename": "CLARK",
+      "job": "MANAGER",
+      "sal": 2450.0,
+      "deptno": "10",
+      "hiredate": "1981-06-09",
+      "depno": "10"
+    },
+    {
+      "empno": "7788",
+      "ename": "SCOTT",
+      "job": "ANALYST",
+      "sal": 3000.0,
+      "deptno": "20",
+      "hiredate": "1987-04-19",
+      "depno": "20"
+    },
+    {
+      "empno": "7839",
+      "ename": "KING",
+      "job": "PRESIDENT",
+      "sal": 5000.0,
+      "deptno": "10",
+      "hiredate": "1981-11-17",
+      "depno": "10"
+    },
+    {
+      "empno": "7844",
+      "ename": "TURNER",
+      "job": "SALESMAN",
+      "sal": 1500.0,
+      "deptno": "30",
+      "comm": 0.0,
+      "hiredate": "1981-09-08",
+      "depno": "30"
+    },
+    {
+      "empno": "7876",
+      "ename": "ADAMS",
+      "job": "CLERK",
+      "sal": 1100.0,
+      "deptno": "20",
+      "hiredate": "1987-05-23",
+      "depno": "20"
+    },
+    {
+      "empno": "7900",
+      "ename": "JAMES",
+      "job": "CLERK",
+      "sal": 950.0,
+      "deptno": "30",
+      "hiredate": "1981-12-03",
+      "depno": "30"
+    },
+    {
+      "empno": "7902",
+      "ename": "FORD",
+      "job": "ANALYST",
+      "sal": 3000.0,
+      "deptno": "20",
+      "hiredate": "1981-12-03",
+      "depno": "20"
+    },
+    {
+      "empno": "7934",
+      "ename": "MILLER",
+      "job": "CLERK",
+      "sal": 1300.0,
+      "deptno": "10",
+      "hiredate": "1982-01-23",
+      "depno": "10"
+    }
+  ]
 }

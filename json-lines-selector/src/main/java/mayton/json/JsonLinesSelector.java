@@ -75,7 +75,7 @@ public class JsonLinesSelector {
         logger.info("Source file bytes read : {}", cis.getByteCount());
         long elapsed = (end - begin) / 1000;
         logger.info("Elapsed time           : {} s", elapsed);
-        if (jsonObjects != 0) {
+        if (elapsed != 0) {
             logger.info("AVG speed              : {} records/s", jsonObjects / elapsed);
         }
     }
