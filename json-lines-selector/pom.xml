@@ -1,0 +1,102 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>mayton.json</groupId>
+  <artifactId>json-lines-selector</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>json-lines-selector</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>org.xbib</groupId>
+      <artifactId>io-compress-bzip2</artifactId>
+      <version>1.1.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.jsurfer</groupId>
+      <artifactId>jsurfer-core</artifactId>
+      <version>1.6.4</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.jsurfer</groupId>
+      <artifactId>jsurfer-gson</artifactId>
+      <version>1.6.4</version>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.11.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.9.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.2.11</version>
+    </dependency>
+  </dependencies>
+
+<build>
+  <plugins>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-jar-plugin</artifactId>
+      <version>3.2.0</version>
+      <configuration>
+        <archive>
+          <manifest>
+            <addClasspath>true</addClasspath>
+            <Main-Class>mayton.json.JsonLinesSelector</Main-Class>
+          </manifest>
+          <!-- TODO: Fix for lib/ -->
+          <!--manifestEntries>
+            <Built-By>mayton</Built-By>
+            <Class-Path>lib/antlr4-runtime-4.7.2.jar lib/commons-io-2.11.0.jar lib/gson-2.9.1.jar lib/io-compress-bzip2-1.1.0.jar lib/jsurfer-core-1.6.4.jar lib/jsurfer-gson-1.6.4.jar lib/logback-classic-1.2.11.jar lib/logback-core-1.2.11.jar lib/slf4j-api-1.7.32.jar</Class-Path>
+            <Main-Class>mayton.json.JsonLinesSelector</Main-Class>
+          </manifestEntries-->
+        </archive>
+        <finalName>json-lines-selector</finalName>
+      </configuration>
+
+    </plugin>
+
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-compiler-plugin</artifactId>
+      <version>3.8.0</version>
+      <configuration>
+        <release>11</release>
+      </configuration>
+    </plugin>
+
+    <plugin>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>exec-maven-plugin</artifactId>
+      <version>1.6.0</version>
+      <configuration>
+        <mainClass>mayton.json.JsonLinesSelector</mainClass>
+      </configuration>
+    </plugin>
+
+  </plugins>
+</build>
+
+
+</project>
