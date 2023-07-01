@@ -1,0 +1,1 @@
+java -jar json-formatter.jar %1 %2
