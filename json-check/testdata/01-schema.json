@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "type": "object",
+  "properties": {
+    "emp": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "empno":    { "type": "string" },
+          "ename":    { "type": "string" },
+          "job":      { "type": "string" },
+          "sal":      { "type": "number" },
+          "deptno":   { "type": "string" },
+          "hiredate": { "type": "string" },
+          "depno":    { "type": "string" },
+          "comm":     { "type": "number" }
+        },
+        "required": [
+          "depno",
+          "deptno",
+          "empno",
+          "ename",
+          "hiredate",
+          "job",
+          "sal"
+        ]
+      }
+    }
+  },
+  "required": [ "emp" ]
+}

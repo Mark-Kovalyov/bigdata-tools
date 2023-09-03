@@ -1,0 +1,4 @@
+#!/bin/bash -v
+
+java -jar json-check.jar $*
+
