@@ -1,18 +1,15 @@
 package mayton.bigdata;
 
-import mayton.bigdata.formatters.CsvFormatter;
-import mayton.bigdata.formatters.ExportFormatter;
-import mayton.bigdata.formatters.JsonFormatter;
-import mayton.bigdata.formatters.XmlFormatter;
+import mayton.bigdata.formatters.*;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
 import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class JdbcExport {
 
@@ -33,7 +30,8 @@ public class JdbcExport {
                 .addOption("s", "schema", true, "Schema name")
                 .addOption("t", "table", true, "Table or View name")
                 .addOption("q", "query", true, "SELECT-expression (ex: SELECT * FROM EMP)")
-                .addRequiredOption("f", "format", true, "Export format: csv|jsonl|xml")
+                .addOption("c", "compression", true, "Optional parameter for Apache AVRO compression ex: snappy|deflate|bzip2")
+                .addRequiredOption("f", "format", true, "Export format: csv|jsonl|xml|avro")
                 .addRequiredOption("o", "outputfile", true, "Output file name (ex: emp.csv)");
     }
 
@@ -60,6 +58,11 @@ public class JdbcExport {
             String queryStr = line.hasOption("query") ?
                     query : String.format("SELECT * FROM %s.%s", schema, table);
 
+            Map<String, String> props = new HashMap<>();
+            if (line.hasOption("compression")) {
+                props.put("compression", line.getOptionValue("compression"));
+            }
+
             try (Connection conn = DriverManager.getConnection(url);
                  OutputStream os = new FileOutputStream(outputFile)
             ) {
@@ -85,13 +88,14 @@ public class JdbcExport {
                 ExportFormatter formatter = null;
                 switch (format) {
                     case "csv" : formatter = new CsvFormatter(); break;
-                    case "jsonl" : formatter = new JsonFormatter(); break;
+                    case "jsonl" : formatter = new JsonLineFormatter(); break;
                     case "xml" : formatter = new XmlFormatter(); break;
+                    case "avro" : formatter = new AvroFormatter(); break;
                     default:
                         throw new JdbcExportException("Unknown format : " + format);
                 }
                 ResultSet rs2 = st.executeQuery(queryStr);
-                formatter.export(rs2, query, columnCount, columnNames, columnTypeNames, os);
+                formatter.export(rs2, query, columnCount, columnNames, columnTypeNames, os, props);
                 logger.info("Finish export");
             } catch (Exception ex) {
                 ex.printStackTrace();

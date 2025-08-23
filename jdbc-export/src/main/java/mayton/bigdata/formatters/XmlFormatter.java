@@ -10,6 +10,7 @@ import javax.xml.stream.XMLStreamWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.ResultSet;
+import java.util.Map;
 
 public class XmlFormatter implements ExportFormatter{
 
@@ -28,9 +29,9 @@ public class XmlFormatter implements ExportFormatter{
     }
 
     @Override
-    public void export(ResultSet rs, String query, int columnCount, String[] columnNames, String[] columnTypes, OutputStream os) throws Exception {
+    public void export(ResultSet rs, String query, int columnCount, String[] columnNames, String[] columnTypes, OutputStream os, Map<String,String> props) throws Exception {
         //XMLOutputFactory factory = XMLOutputFactory.newInstance();
-        XMLOutputFactory factory = new WstxOutputFactory();
+        XMLOutputFactory factory = new WstxOutputFactory(); // TODO: What is the best XmlFactory? Woodstock? Com.sun.Xml?
         factory.setProperty("javax.xml.stream.isRepairingNamespaces", true);
         //factory.setProperty("com.ctc.wstx.outputIndentation", "  "); // 2 spaces
         logger.info("factory created {}", factory.toString());

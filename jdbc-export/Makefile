@@ -1,6 +1,5 @@
 build:
-	mvn clean package
-	mvn install dependency:copy-dependencies
+	mvn clean package install dependency:copy-dependencies -DskipTests
 	mkdir -p bin/
 	cp -f target/jdbc-export.jar bin/
 	cp -fr target/dependency/* bin/

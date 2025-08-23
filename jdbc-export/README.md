@@ -1,20 +1,19 @@
 # JDBC-export
 
-- tiny and flexible to to export tables from JDBC compatible databases into external files
-- support internally
+- tiny and flexible CLI to to export tables from JDBC compatible databases into external files
+- supports internally
   - Oracle
-  - DB2
+  - DB2 
   - mysql / maria
   - SQLite
+  - H2
 - support output type files
   - CSV
   - BigData JSONL (text files with independent JSON in each Line)
   - XML
+  - AVRO
 - not supported yet, but planned:
-  - Apache Avro
-  - Apache ORC
-  - Apache Parquet
-  - Delta table
+  - Google Protobuf Binary file
 
 
 # Exapmple
@@ -29,13 +28,15 @@ usage:
 / /_/ / /  / /_/ / /__/ /  __/_____/  __/>  </ /_/ / /_/ / /  / /_
 \____/_/   \__,_/\___/_/\___/      \___/_/|_/ .___/\____/_/   \__/
                                            /_/
- -f,--format <arg>       Export format: csv|jsonl|xml
- -h,--help               Print this help
- -o,--outputfile <arg>   Output file name (ex: emp.csv)
- -q,--query <arg>        SELECT-expression (ex: SELECT * FROM EMP)
- -s,--schema <arg>       Schema name
- -t,--table <arg>        Table or View name
- -u,--url <arg>          JDBC url. (ex:jdbc:oracle:thin@localhost:1521/XE
+ -c,--compression <arg>   Optional parameter for Apache AVRO compression
+                          ex: snappy|deflate|bzip2
+ -f,--format <arg>        Export format: csv|jsonl|xml|avro
+ -h,--help                Print this help
+ -o,--outputfile <arg>    Output file name (ex: emp.csv)
+ -q,--query <arg>         SELECT-expression (ex: SELECT * FROM EMP)
+ -s,--schema <arg>        Schema name
+ -t,--table <arg>         Table or View name
+ -u,--url <arg>           JDBC url. (ex:jdbc:oracle:thin@localhost:1521/XE
 ```
 
 ## 1) Export Oracle table scott.emp into CSV file:
@@ -55,7 +56,29 @@ java -jar jdbc-export.jar -u "jdbc:sqlite:books" --query "select name, sha1, siz
 java -jar jdbc-export.jar ..... --format xml
 ```
 
+## 3) Export with binary AVRO output format, and set 'snappy' compression
+```bash
+java -jar jdbc-export.jar ..... --format avro --compression snappy
+```
+
 # Bugs and pitfalls:
+
+## Compression types for Apache AVRO:
+| Compression |
+|-------------|
+| snappy      |
+| bzip2 |
+| deflate |
+
+See the different size for compression codecs to compare. We would recoomend to use snappy
+because of good balance between size and time overhead.
+
+```
+08/23/2025  09:20 PM       193,132,303 books.avro
+08/23/2025  09:19 PM       142,405,348 books.snappy.avro
+08/23/2025  09:18 PM        97,498,771 books.deflate.avro
+08/23/2025  09:20 PM        83,081,037 books.bzip2.avro
+```
 
 ## Naive JSON library
 
