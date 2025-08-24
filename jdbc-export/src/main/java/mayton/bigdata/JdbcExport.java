@@ -15,18 +15,18 @@ public class JdbcExport {
 
     static Logger logger = LoggerFactory.getLogger("jdbc-export");
 
-    static String LOGO =  "\n" +
-                    "   ____                  __                                      __ \n" +
-                    "  / __ \\_________ ______/ /__        ___  _  ______  ____  _____/ /_\n" +
-                    " / / / / ___/ __ `/ ___/ / _ \\______/ _ \\| |/_/ __ \\/ __ \\/ ___/ __/\n" +
-                    "/ /_/ / /  / /_/ / /__/ /  __/_____/  __/>  </ /_/ / /_/ / /  / /_  \n" +
-                    "\\____/_/   \\__,_/\\___/_/\\___/      \\___/_/|_/ .___/\\____/_/   \\__/  \n" +
-                    "                                           /_/                      ";
+    static String LOGO =
+            """
+                _  ____  ____  ____        ________  _ ____  ____  ____ _____\s
+               / |/  _ \\/  __\\/   _\\      /  __/\\  \\///  __\\/  _ \\/  __Y__ __\\
+               | || | \\|| | //|  /  _____ |  \\   \\  / |  \\/|| / \\||  \\/| / \\ \s
+            /\\_| || |_/|| |_\\\\|  \\__\\____\\|  /_  /  \\ |  __/| \\_/||    / | | \s
+            \\____/\\____/\\____/\\____/      \\____\\/__/\\\\\\_/   \\____/\\_/\\_\\ \\_/ \s
+            """;
 
     static Options createOptions() {
         return new Options()
                 .addRequiredOption("u", "url", true, "JDBC url. (ex:jdbc:oracle:thin@localhost:1521/XE")
-                .addOption("h", "help", false, "Print this help")
                 .addOption("s", "schema", true, "Schema name")
                 .addOption("t", "table", true, "Table or View name")
                 .addOption("q", "query", true, "SELECT-expression (ex: SELECT * FROM EMP)")
@@ -40,15 +40,14 @@ public class JdbcExport {
         Options options = createOptions();
         if (args.length == 0) {
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp(LOGO, createOptions());
+            formatter.printHelp("\n\n" + LOGO + "\n", createOptions());
         } else {
             CommandLine line = parser.parse(options, args);
             if (line.hasOption("h")) {
                 HelpFormatter formatter = new HelpFormatter();
-                formatter.printHelp(LOGO, createOptions());
+                formatter.printHelp("\n\n" + LOGO + "\n", createOptions());
                 return;
             }
-
             String url    = line.getOptionValue("url");
             String schema = line.getOptionValue("schema");
             String table  = line.getOptionValue("table");

@@ -1,37 +1,39 @@
 # JDBC-export
 
-- tiny and flexible CLI to to export tables from JDBC compatible databases into external files
-- supports internally
+JDBC-export is tiny and flexible CLI to to export tables from JDBC compatible databases into external files (csv, json, etc)
+
+Fieatures:
+- supports databases:
   - Oracle
   - DB2 
-  - mysql / maria
+  - PostgreSQL
+  - MS-SQL Server (not tested yet!)
+  - mysql / maria (the same driver)
   - SQLite
   - H2
-- support output type files
-  - CSV
-  - BigData JSONL (text files with independent JSON in each Line)
-  - XML
+- supports output type files
+  - CSV (via FastCSV)
+  - JSONLines (JSONL), text files with independent JSON in each Line
+  - XML (via Woodstox XML)
   - AVRO
 - not supported yet, but planned:
   - Google Protobuf Binary file
-
+  - Apache Parquet and Delta Table
 
 # Exapmple
 
 ## 0) Help:
 ```
 $ java -jar jdbc-export.jar
-usage:
-   ____                  __                                      __
-  / __ \_________ ______/ /__        ___  _  ______  ____  _____/ /_
- / / / / ___/ __ `/ ___/ / _ \______/ _ \| |/_/ __ \/ __ \/ ___/ __/
-/ /_/ / /  / /_/ / /__/ /  __/_____/  __/>  </ /_/ / /_/ / /  / /_
-\____/_/   \__,_/\___/_/\___/      \___/_/|_/ .___/\____/_/   \__/
-                                           /_/
+    _  ____  ____  ____        ________  _ ____  ____  ____ _____
+   / |/  _ \/  __\/   _\      /  __/\  \///  __\/  _ \/  __Y__ __\
+   | || | \|| | //|  /  _____ |  \   \  / |  \/|| / \||  \/| / \
+/\_| || |_/|| |_\\|  \__\____\|  /_  /  \ |  __/| \_/||    / | |
+\____/\____/\____/\____/      \____\/__/\\\_/   \____/\_/\_\ \_/
+
  -c,--compression <arg>   Optional parameter for Apache AVRO compression
                           ex: snappy|deflate|bzip2
  -f,--format <arg>        Export format: csv|jsonl|xml|avro
- -h,--help                Print this help
  -o,--outputfile <arg>    Output file name (ex: emp.csv)
  -q,--query <arg>         SELECT-expression (ex: SELECT * FROM EMP)
  -s,--schema <arg>        Schema name
@@ -61,17 +63,37 @@ java -jar jdbc-export.jar ..... --format xml
 java -jar jdbc-export.jar ..... --format avro --compression snappy
 ```
 
+## 4) Export from MariaDb table with filtering 
+```sh
+java -jar jdbc-export.jar jdbc:mariadb://localhost:3306/testdb --query "select name, id from clients where category = '141'" .....
+```
+
 # Bugs and pitfalls:
+
+## JDBC driver urls for network connection for different types of DBMS:
+| DBMS          | Driver                          | Connection string examples                                              | Desc                    |
+|---------------|---------------------------------|-------------------------------------------------------------------------|-------------------------|
+| Oracle        | oracle.jdbc.driver.OracleDriver | jdbc:oracle:thin:scott/tiger@localhost:1521/ORCL                        | ORCL is a test database 
+| MySQL/MariaDb |                                 | dbc:mariadb://localhost:3306/testdb                                     |
+| IBM/Db2       |                                 | jdbc:db2:STLEC1:user=dbadm;password=dbadm                               |
+| PostgreSQL    |                                 | jdbc:postgresql://localhost:5455/your_database_name                     |     
+| PostgreSQL    |                                 | jdbc:postgresql://buh.account.org:5455/sklad??user=elena&password=***** | Credentials             |  
+
+## JDBC driver url for file connection
+| DBMS   | Driver | Connection string examples           | Desc                    |
+|--------|--------|--------------------------------------|-------------------------|
+| SQLite |        | jdbc:sqlite:/folder1/database_folder |
+| H2     |        | jdbc:h2:~/test                       |
 
 ## Compression types for Apache AVRO:
 | Compression |
 |-------------|
 | snappy      |
-| bzip2 |
-| deflate |
+| bzip2       |
+| deflate     |
 
-See the different size for compression codecs to compare. We would recoomend to use snappy
-because of good balance between size and time overhead.
+See the different sizes for compression codecs to compare. We would recommend to use snappy because of 
+the good balance between size and time overhead.
 
 ```
 08/23/2025  09:20 PM       193,132,303 books.avro
@@ -82,14 +104,29 @@ because of good balance between size and time overhead.
 
 ## Naive JSON library
 
-We use Jsonitier library to write JSON files. We are not sure is it fully covers ECMA-404 specification.
-The main goal - to speedup writing stream of chars as much more quicly, so, some Unicode charaters can
-be incorrectly wrapped.
+We use Jsonitier library to write JSON files. We are not sure is it fully covers ECMA-404 specification. 
+The main goal - to speed up the writing stream of chars much more quickly, so some Unicode characters can be incorrectly wrapped.
 
 ## Custom JDBC drivers
 
-You can use any JDBC compatible driver, but carefully with complex data types, 
-like Date/Time, Objects, Geometry, Structures e.t.c. We not tested yet all off them
-in combination of different Databases and drivers.
+You can use any JDBC-compatible driver, but carefully with complex data types, like Date/Time, Objects, Geometry, Structures e.t.c.
+We do not test all of them in a combination of different databases and drivers.
 
 You can report issues here https://github.com/Mark-Kovalyov/bigdata-tools/issues
+
+## Security statement:
+
+The technical ability to unload business-information from the database in huge volumes 
+does not allow you the privileges to do this. Consult with your project manager
+or security officer about!
+
+Many organizations follow the principle of explicit permission to act. Remember it!
+
+# Related links:
+
+- Woodstox https://github.com/FasterXML/woodstox
+- AVRO https://github.com/apache/avro
+- FastCSV https://fastcsv.org/ (Fastest library to write CSV)
+- Jsonitier https://jsoniter.com/api.htmlusage:
+
+

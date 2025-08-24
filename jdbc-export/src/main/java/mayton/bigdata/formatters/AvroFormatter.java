@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.OutputStream;
-import java.sql.Blob;
 import java.sql.ResultSet;
 import java.util.Map;
 
@@ -21,6 +20,7 @@ public class AvroFormatter implements ExportFormatter{
 
     static Logger logger = LoggerFactory.getLogger("avro-formatter");
 
+    @SuppressWarnings("java:S2629")
     @Override
     public void export(ResultSet rs, String query, int columnCount, String[] columnNames, String[] columnTypes, OutputStream os, Map<String,String> props) throws Exception {
 
@@ -42,27 +42,27 @@ public class AvroFormatter implements ExportFormatter{
         Schema schema = fieldAssembler.endRecord();
 
         DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(schema);
-        DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<>(datumWriter);
-        if (props.containsKey("compression")) {
-            String comp = props.get("compression");
-            logger.info("compression = {}", comp);
-            CodecFactory codec = CodecFactory.fromString(comp);
-            logger.info("codec factory = {}", codec.toString());
-            dataFileWriter.setCodec(codec);
-        }
-
-        dataFileWriter.create(schema, os);
-        while(rs.next()) {
-            GenericRecord tableRecord = new GenericData.Record(schema);
-            for(int i = 1 ; i <= columnCount ; i++) {
-                if (rs.getObject(i) != null) {
-                    tableRecord.put(columnNames[i], rs.getObject(i));
-                }
+        try(DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<>(datumWriter)) {
+            if (props.containsKey("compression")) {
+                String comp = props.get("compression");
+                logger.info("compression = {}", comp);
+                CodecFactory codec = CodecFactory.fromString(comp);
+                logger.info("codec factory = {}", codec);
+                dataFileWriter.setCodec(codec);
             }
-            dataFileWriter.append(tableRecord);
+
+            dataFileWriter.create(schema, os);
+            while (rs.next()) {
+                GenericRecord tableRecord = new GenericData.Record(schema);
+                for (int i = 1; i <= columnCount; i++) {
+                    if (rs.getObject(i) != null) {
+                        tableRecord.put(columnNames[i], rs.getObject(i));
+                    }
+                }
+                dataFileWriter.append(tableRecord);
+            }
         }
 
-        dataFileWriter.flush();
 
 
     }

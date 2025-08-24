@@ -1,13 +1,11 @@
 package mayton.bigdata.formatters;
 
 import com.ctc.wstx.stax.WstxOutputFactory;
-import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.ResultSet;
 import java.util.Map;
@@ -29,12 +27,13 @@ public class XmlFormatter implements ExportFormatter{
     }
 
     @Override
+    @SuppressWarnings("java:S2629")
     public void export(ResultSet rs, String query, int columnCount, String[] columnNames, String[] columnTypes, OutputStream os, Map<String,String> props) throws Exception {
         //XMLOutputFactory factory = XMLOutputFactory.newInstance();
         XMLOutputFactory factory = new WstxOutputFactory(); // TODO: What is the best XmlFactory? Woodstock? Com.sun.Xml?
         factory.setProperty("javax.xml.stream.isRepairingNamespaces", true);
         //factory.setProperty("com.ctc.wstx.outputIndentation", "  "); // 2 spaces
-        logger.info("factory created {}", factory.toString());
+        logger.info("factory class created {}", factory.getClass());
         // com.sun.xml.internal.stream.XMLOutputFactoryImpl@74bf1791
         // com.ctc.wstx.stax.WstxOutputFactory@5c2375a9
         // C l   a u   d  i  o   
