@@ -68,7 +68,7 @@ java -jar jdbc-export.jar ..... --format avro --compression snappy
 java -jar jdbc-export.jar jdbc:mariadb://localhost:3306/testdb --query "select name, id from clients where category = '141'" .....
 ```
 
-# Bugs and pitfalls:
+# Specifications and examples:
 
 ## JDBC driver urls for network connection for different types of DBMS:
 | DBMS          | Driver                          | Connection string examples                                              | Desc                    |
@@ -101,6 +101,8 @@ the good balance between size and time overhead.
 08/23/2025  09:18 PM        97,498,771 books.deflate.avro
 08/23/2025  09:20 PM        83,081,037 books.bzip2.avro
 ```
+
+# Pitfalls
 
 ## Naive JSON library
 
