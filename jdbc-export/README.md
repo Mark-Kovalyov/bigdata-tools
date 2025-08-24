@@ -58,12 +58,12 @@ java -jar jdbc-export.jar -u "jdbc:sqlite:books" --query "select name, sha1, siz
 java -jar jdbc-export.jar ..... --format xml
 ```
 
-## 3) Export with binary AVRO output format, and set 'snappy' compression
+## 4) Export with binary AVRO output format, and set 'snappy' compression
 ```bash
 java -jar jdbc-export.jar ..... --format avro --compression snappy
 ```
 
-## 4) Export from MariaDb table with filtering 
+## 5) Export from MariaDb table with filtering 
 ```sh
 java -jar jdbc-export.jar jdbc:mariadb://localhost:3306/testdb --query "select name, id from clients where category = '141'" .....
 ```
