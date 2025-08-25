@@ -2,6 +2,7 @@ package mayton.bigdata.formatters;
 
 import com.jsoniter.output.JsonStream;
 import mayton.bigdata.JdbcExportException;
+import mayton.bigdata.TableMetadata;
 
 import java.io.*;
 import java.sql.Blob;
@@ -9,8 +10,12 @@ import java.sql.ResultSet;
 import java.util.Map;
 
 public class JsonLineFormatter implements ExportFormatter {
+
     @Override
-    public void export(ResultSet rs, String query, int columnCount, String[] columnNames, String[] columnTypes, OutputStream os, Map<String,String> props) throws Exception {
+    public void export(ResultSet rs, String query, TableMetadata tableMetadata, OutputStream os, Map<String,String> props) throws Exception {
+        int columnCount = tableMetadata.columnCount();
+        String[] columnNames = tableMetadata.columnNames();
+        String[] columnTypes = tableMetadata.columnTypes();
         JsonStream stream = new JsonStream(os, 4096);
         while (rs.next()) {
             stream.writeObjectStart();

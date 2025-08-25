@@ -31,7 +31,7 @@ public class JdbcExport {
                 .addOption("t", "table", true, "Table or View name")
                 .addOption("q", "query", true, "SELECT-expression (ex: SELECT * FROM EMP)")
                 .addOption("c", "compression", true, "Optional parameter for Apache AVRO compression ex: snappy|deflate|bzip2")
-                .addRequiredOption("f", "format", true, "Export format: csv|jsonl|xml|avro")
+                .addRequiredOption("f", "format", true, "Export format: csv|jsonl|xml|avro|seq")
                 .addRequiredOption("o", "outputfile", true, "Output file name (ex: emp.csv)");
     }
 
@@ -58,6 +58,7 @@ public class JdbcExport {
                     query : String.format("SELECT * FROM %s.%s", schema, table);
 
             Map<String, String> props = new HashMap<>();
+            props.put("outputfile", outputFile);
             if (line.hasOption("compression")) {
                 props.put("compression", line.getOptionValue("compression"));
             }
@@ -86,15 +87,18 @@ public class JdbcExport {
                 logger.info("Start export");
                 ExportFormatter formatter = null;
                 switch (format) {
-                    case "csv" : formatter = new CsvFormatter(); break;
+                    case "csv"   : formatter = new CsvFormatter(); break;
                     case "jsonl" : formatter = new JsonLineFormatter(); break;
-                    case "xml" : formatter = new XmlFormatter(); break;
-                    case "avro" : formatter = new AvroFormatter(); break;
+                    case "xml"   : formatter = new XmlFormatter(); break;
+                    case "avro"  : formatter = new AvroFormatter(); break;
+                    case "seq"   :
+                        formatter = new SeqFormatter();
+                        break;
                     default:
                         throw new JdbcExportException("Unknown format : " + format);
                 }
                 ResultSet rs2 = st.executeQuery(queryStr);
-                formatter.export(rs2, query, columnCount, columnNames, columnTypeNames, os, props);
+                formatter.export(rs2, query, new TableMetadata(columnCount, columnNames, columnTypeNames), os, props);
                 logger.info("Finish export");
             } catch (Exception ex) {
                 ex.printStackTrace();

@@ -1,6 +1,7 @@
 package mayton.bigdata.formatters;
 
 import mayton.bigdata.JdbcExportException;
+import mayton.bigdata.TableMetadata;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.apache.avro.file.CodecFactory;
@@ -22,8 +23,10 @@ public class AvroFormatter implements ExportFormatter{
 
     @SuppressWarnings("java:S2629")
     @Override
-    public void export(ResultSet rs, String query, int columnCount, String[] columnNames, String[] columnTypes, OutputStream os, Map<String,String> props) throws Exception {
-
+    public void export(ResultSet rs, String query, TableMetadata tableMetadata, OutputStream os, Map<String,String> props) throws Exception {
+        int columnCount = tableMetadata.columnCount();
+        String[] columnNames = tableMetadata.columnNames();
+        String[] columnTypes = tableMetadata.columnTypes();
         SchemaBuilder.FieldAssembler<Schema> fieldAssembler = SchemaBuilder
                 .record("AvroFormatter") // TODO: Is it neccasary to add namespace?
                 .fields();

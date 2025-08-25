@@ -1,6 +1,7 @@
 package mayton.bigdata.formatters;
 
 import com.ctc.wstx.stax.WstxOutputFactory;
+import mayton.bigdata.TableMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +29,10 @@ public class XmlFormatter implements ExportFormatter{
 
     @Override
     @SuppressWarnings("java:S2629")
-    public void export(ResultSet rs, String query, int columnCount, String[] columnNames, String[] columnTypes, OutputStream os, Map<String,String> props) throws Exception {
+    public void export(ResultSet rs, String query, TableMetadata tableMetadata, OutputStream os, Map<String,String> props) throws Exception {
+        int columnCount = tableMetadata.columnCount();
+        String[] columnNames = tableMetadata.columnNames();
+        String[] columnTypes = tableMetadata.columnTypes();
         //XMLOutputFactory factory = XMLOutputFactory.newInstance();
         XMLOutputFactory factory = new WstxOutputFactory(); // TODO: What is the best XmlFactory? Woodstock? Com.sun.Xml?
         factory.setProperty("javax.xml.stream.isRepairingNamespaces", true);
