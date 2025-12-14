@@ -33,9 +33,9 @@ $ java -jar jdbc-export.jar
 
  -c,--compression <arg>   Optional parameter for Apache AVRO compression
                           ex: snappy|deflate|bzip2
- -f,--format <arg>        Export format: csv|jsonl|xml|avro
+ -f,--format <arg>        Export format: {csv|jsonl|xml|avro|protobuf}
  -o,--outputfile <arg>    Output file name (ex: emp.csv)
- -q,--query <arg>         SELECT-expression (ex: SELECT * FROM EMP)
+ -q,--where <arg>         WHERE expression (ex: id > 1000)
  -s,--schema <arg>        Schema name
  -t,--table <arg>         Table or View name
  -u,--url <arg>           JDBC url. (ex:jdbc:oracle:thin@localhost:1521/XE
@@ -123,6 +123,19 @@ does not allow you the privileges to do this. Consult with your project manager
 or security officer about!
 
 Many organizations follow the principle of explicit permission to act. Remember it!
+
+## Typical file extensions for different output formats:
+
+You're able to use any file extension, but typically used are:
+
+| Format   | Typical file extension |
+|----------|-----------------------|
+| CSV      | .csv                  |
+| JSONL    | .jsonl                |
+| XML      | .xml                  |
+| AVRO     | .avro                 |        
+| Protobuf | .pb                   |
+
 
 # Related links:
 
