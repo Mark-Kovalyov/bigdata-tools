@@ -12,6 +12,7 @@ import org.apache.avro.io.DatumWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.sql.ResultSet;
 import java.util.Map;
@@ -22,10 +23,14 @@ public class AvroFormatter implements ExportFormatter{
 
     @SuppressWarnings("java:S2629")
     @Override
-    public void export(ResultSet rs, String query, int columnCount, String[] columnNames, String[] columnTypes, OutputStream os, Map<String,String> props) throws Exception {
+    public void export(ResultSet rs, String query, int columnCount, String[] columnNames, String[] columnTypes, String path, Map<String,String> props) throws Exception {
+
+        String recordName = props.getOrDefault("recordname", "");
+        String nameSpace = props.getOrDefault("namespace", "");
 
         SchemaBuilder.FieldAssembler<Schema> fieldAssembler = SchemaBuilder
-                .record("AvroFormatter") // TODO: Is it neccasary to add namespace?
+                .record(recordName) // TODO: Is it neccasary to add namespace?
+                .namespace(nameSpace)
                 .fields();
 
         for(int i = 1 ; i <= columnCount ; i++) {
@@ -51,16 +56,19 @@ public class AvroFormatter implements ExportFormatter{
                 dataFileWriter.setCodec(codec);
             }
 
-            dataFileWriter.create(schema, os);
+            dataFileWriter.create(schema, new FileOutputStream(path));
             while (rs.next()) {
                 GenericRecord tableRecord = new GenericData.Record(schema);
                 for (int i = 1; i <= columnCount; i++) {
                     if (rs.getObject(i) != null) {
                         tableRecord.put(columnNames[i], rs.getObject(i));
+                        // TODO: Investigate for put by index is faster
                     }
                 }
                 dataFileWriter.append(tableRecord);
             }
+        } catch (Exception e) {
+            throw new JdbcExportException("Avro export error: " + e.getMessage(), e);
         }
 
 

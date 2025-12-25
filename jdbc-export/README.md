@@ -16,9 +16,14 @@ Fieatures:
   - JSONLines (JSONL), text files with independent JSON in each Line
   - XML (via Woodstox XML)
   - AVRO
+  - Parquet 
 - not supported yet, but planned:
   - Google Protobuf Binary file
-  - Apache Parquet and Delta Table
+  - Delta Table
+  - Apache ORC
+
+# Requirements
+- Java 17
 
 # Exapmple
 
@@ -33,12 +38,12 @@ $ java -jar jdbc-export.jar
 
  -c,--compression <arg>   Optional parameter for Apache AVRO compression
                           ex: snappy|deflate|bzip2
- -f,--format <arg>        Export format: csv|jsonl|xml|avro
+ -f,--format <arg>        Export format: csv|jsonl|xml|avro|parquet
  -o,--outputfile <arg>    Output file name (ex: emp.csv)
  -q,--query <arg>         SELECT-expression (ex: SELECT * FROM EMP)
  -s,--schema <arg>        Schema name
  -t,--table <arg>         Table or View name
- -u,--url <arg>           JDBC url. (ex:jdbc:oracle:thin@localhost:1521/XE
+ -u,--url <arg>           JDBC url. (ex:jdbc:oracle:thin@localhost:1521/XE)
 ```
 
 ## 1) Export Oracle table scott.emp into CSV file:
@@ -67,6 +72,15 @@ java -jar jdbc-export.jar ..... --format avro --compression snappy
 ```sh
 java -jar jdbc-export.jar jdbc:mariadb://localhost:3306/testdb --query "select name, id from clients where category = '141'" .....
 ```
+## 6) Export from SQLIte into Apache Parquet file with snappy compression:
+```sh
+java -jar jdbc-export.jar \
+     -u jdbc:sqlite:/sqlite/tpb/tpb \
+     --query "SELECT * FROM BOOKS" \
+     --compression snappy \
+     --format parquet \
+     --outputfile /bigdata/tpb.sbappy.parquet
+```
 
 # Specifications and examples:
 
@@ -92,7 +106,7 @@ java -jar jdbc-export.jar jdbc:mariadb://localhost:3306/testdb --query "select n
 | bzip2       |
 | deflate     |
 
-See the different sizes for compression codecs to compare. We would recommend to use snappy because of 
+See the different sizes for compression codecs to compare. We would recommend to use snappy because of
 the good balance between size and time overhead.
 
 ```
@@ -102,12 +116,34 @@ the good balance between size and time overhead.
 08/23/2025  09:20 PM        83,081,037 books.bzip2.avro
 ```
 
+## Compression types for Apache Parquet (case insensitive):
+| Compression |
+|-------------|
+| SNAPPY      |
+| GZIP        |
+| LZO         |
+| BROTLI      |
+| ZSTD        |
+
+
+
 # Pitfalls
 
 ## Naive JSON library
 
 We use Jsonitier library to write JSON files. We are not sure is it fully covers ECMA-404 specification. 
 The main goal - to speed up the writing stream of chars much more quickly, so some Unicode characters can be incorrectly wrapped.
+
+## Custom JDK
+
+The tool is tested with OpenJDK 17. Other JDKs can work incorrectly.
+If you need to change you current JDK, you can use Conda environment 
+manager to create isolated env with required JDK version.
+
+Example
+```sh
+$ conda activate java17env
+```
 
 ## Custom JDBC drivers
 

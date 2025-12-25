@@ -6,4 +6,8 @@ public class JdbcExportException extends Exception {
         super(comment);
     }
 
+    public JdbcExportException(String comment, Throwable cause) {
+        super(comment, cause);
+    }
+
 }

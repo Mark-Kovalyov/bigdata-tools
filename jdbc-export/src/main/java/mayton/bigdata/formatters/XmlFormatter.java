@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.sql.ResultSet;
 import java.util.Map;
@@ -28,7 +29,7 @@ public class XmlFormatter implements ExportFormatter{
 
     @Override
     @SuppressWarnings("java:S2629")
-    public void export(ResultSet rs, String query, int columnCount, String[] columnNames, String[] columnTypes, OutputStream os, Map<String,String> props) throws Exception {
+    public void export(ResultSet rs, String query, int columnCount, String[] columnNames, String[] columnTypes, String path, Map<String,String> props) throws Exception {
         //XMLOutputFactory factory = XMLOutputFactory.newInstance();
         XMLOutputFactory factory = new WstxOutputFactory(); // TODO: What is the best XmlFactory? Woodstock? Com.sun.Xml?
         factory.setProperty("javax.xml.stream.isRepairingNamespaces", true);
@@ -38,7 +39,7 @@ public class XmlFormatter implements ExportFormatter{
         // com.ctc.wstx.stax.WstxOutputFactory@5c2375a9
         // C l   a u   d  i  o   
         // 43 6c 61 75 64 69 6f  \u1f20
-        XMLStreamWriter writer = factory.createXMLStreamWriter(os, "utf-8");
+        XMLStreamWriter writer = factory.createXMLStreamWriter(new FileOutputStream(path), "utf-8");
         writer.writeStartDocument();
         writer.writeStartElement("table");
         while (rs.next()) {

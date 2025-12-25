@@ -30,8 +30,10 @@ public class JdbcExport {
                 .addOption("s", "schema", true, "Schema name")
                 .addOption("t", "table", true, "Table or View name")
                 .addOption("q", "query", true, "SELECT-expression (ex: SELECT * FROM EMP)")
-                .addOption("c", "compression", true, "Optional parameter for Apache AVRO compression ex: snappy|deflate|bzip2")
-                .addRequiredOption("f", "format", true, "Export format: csv|jsonl|xml|avro")
+                .addOption("c", "compression", true, "Optional parameter for AVRO and Parquet compression. See the documentation.")
+                .addOption("r", "recordname", true, "Optional parameter for AVRO and Parquet")
+                .addOption("n", "namespace", true, "Optional parameter for AVRO and Parquet")
+                .addRequiredOption("f", "format", true, "Export format: csv|jsonl|xml|avro|parquet")
                 .addRequiredOption("o", "outputfile", true, "Output file name (ex: emp.csv)");
     }
 
@@ -58,12 +60,23 @@ public class JdbcExport {
                     query : String.format("SELECT * FROM %s.%s", schema, table);
 
             Map<String, String> props = new HashMap<>();
+
             if (line.hasOption("compression")) {
                 props.put("compression", line.getOptionValue("compression"));
             }
 
+            if (line.hasOption("recordname")) {
+                props.put("recordname", line.getOptionValue("recordname"));
+            }
+
+            if (line.hasOption("namespace")) {
+                props.put("namespace", line.getOptionValue("namespace"));
+            }
+
+            props.put("table_name", "books"); // TODO: fix after CLI interface upgrade
+
             try (Connection conn = DriverManager.getConnection(url);
-                 OutputStream os = new FileOutputStream(outputFile)
+
             ) {
                 logger.info("Start analyze schema");
                 Statement st = conn.createStatement();
@@ -86,15 +99,16 @@ public class JdbcExport {
                 logger.info("Start export");
                 ExportFormatter formatter = null;
                 switch (format) {
-                    case "csv" : formatter = new CsvFormatter(); break;
-                    case "jsonl" : formatter = new JsonLineFormatter(); break;
-                    case "xml" : formatter = new XmlFormatter(); break;
-                    case "avro" : formatter = new AvroFormatter(); break;
+                    case "csv"     : formatter = new CsvFormatter(); break;
+                    case "jsonl"   : formatter = new JsonLineFormatter(); break;
+                    case "xml"     : formatter = new XmlFormatter(); break;
+                    case "avro"    : formatter = new AvroFormatter(); break;
+                    case "parquet" : formatter = new ParquetFormatter(); break;
                     default:
                         throw new JdbcExportException("Unknown format : " + format);
                 }
                 ResultSet rs2 = st.executeQuery(queryStr);
-                formatter.export(rs2, query, columnCount, columnNames, columnTypeNames, os, props);
+                formatter.export(rs2, query, columnCount, columnNames, columnTypeNames, outputFile, props);
                 logger.info("Finish export");
             } catch (Exception ex) {
                 ex.printStackTrace();
