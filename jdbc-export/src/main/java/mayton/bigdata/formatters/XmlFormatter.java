@@ -28,31 +28,29 @@ public class XmlFormatter implements ExportFormatter{
 
     @Override
     @SuppressWarnings("java:S2629")
-    public void export(ResultSet rs, String query, int columnCount, String[] columnNames, String[] columnTypes, OutputStream os, Map<String,String> props) throws Exception {
-        //XMLOutputFactory factory = XMLOutputFactory.newInstance();
-        XMLOutputFactory factory = new WstxOutputFactory(); // TODO: What is the best XmlFactory? Woodstock? Com.sun.Xml?
-        factory.setProperty("javax.xml.stream.isRepairingNamespaces", true);
-        //factory.setProperty("com.ctc.wstx.outputIndentation", "  "); // 2 spaces
-        logger.info("factory class created {}", factory.getClass());
-        // com.sun.xml.internal.stream.XMLOutputFactoryImpl@74bf1791
-        // com.ctc.wstx.stax.WstxOutputFactory@5c2375a9
-        // C l   a u   d  i  o   
-        // 43 6c 61 75 64 69 6f  \u1f20
-        XMLStreamWriter writer = factory.createXMLStreamWriter(os, "utf-8");
-        writer.writeStartDocument();
-        writer.writeStartElement("table");
-        while (rs.next()) {
-            writer.writeStartElement("row");
-            for (int i = 1; i <= columnCount; i++) {
-                if (rs.getObject(i) != null) {
-                    String v = sanitizeForXml(rs.getString(i));
-                    writer.writeAttribute(columnNames[i], v);
+    public void export(ResultSet rs, String query, int columnCount, String[] columnNames, String[] columnTypes, OutputStream os, Map<String,String> props) throws ExportException {
+        try {
+            XMLOutputFactory factory = new WstxOutputFactory(); // TODO: What is the best XmlFactory? Woodstock? Com.sun.Xml?
+            factory.setProperty("javax.xml.stream.isRepairingNamespaces", true);
+            logger.info("factory class created {}", factory.getClass());
+            XMLStreamWriter writer = factory.createXMLStreamWriter(os, "utf-8");
+            writer.writeStartDocument();
+            writer.writeStartElement("table");
+            while (rs.next()) {
+                writer.writeStartElement("row");
+                for (int i = 1; i <= columnCount; i++) {
+                    if (rs.getObject(i) != null) {
+                        String v = sanitizeForXml(rs.getString(i));
+                        writer.writeAttribute(columnNames[i], v);
+                    }
                 }
+                writer.writeEndElement();
             }
             writer.writeEndElement();
+            writer.writeEndDocument();
+            writer.flush();
+        } catch (Exception ex) {
+            throw new ExportException(ex.getMessage(), ExportException.ExportErrorCode.DATA_PHASE);
         }
-        writer.writeEndElement();
-        writer.writeEndDocument();
-        writer.flush();
     }
 }

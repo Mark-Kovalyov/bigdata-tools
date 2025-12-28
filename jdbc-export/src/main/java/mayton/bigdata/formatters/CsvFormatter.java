@@ -9,7 +9,8 @@ import java.util.Map;
 
 public class CsvFormatter implements ExportFormatter {
     @Override
-    public void export(ResultSet rs, String query, int columnCount, String[] columnNames, String[] columnTypes, OutputStream os, Map<String,String> props) throws Exception {
+    public void export(ResultSet rs, String query, int columnCount, String[] columnNames, String[] columnTypes, OutputStream os, Map<String,String> props) throws ExportException {
+
         try (CsvWriter csv = CsvWriter.builder()
                 .quoteCharacter('"')
                 .fieldSeparator(';')
@@ -26,6 +27,8 @@ public class CsvFormatter implements ExportFormatter {
                 }
                 csv.writeRecord(row);
             }
+        } catch (Exception exception) {
+            throw new ExportException(exception.getMessage(), ExportException.ExportErrorCode.DATA_PHASE);
         }
     }
 }

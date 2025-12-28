@@ -124,12 +124,15 @@ public class JdbcExport {
                     case "protobuf" : formatter = new ProtoFormatter(); break;
 
                     default:
-                        throw new JdbcExportException("Unknown format : " + format);
+                        throw new ExportException("Unknown format : " + format);
                 }
                 ResultSet rs2 = st.executeQuery(queryStr);
                 formatter.export(rs2, queryStr, columnCount, columnNames, columnTypeNames, os, props);
                 logger.info("Finish export");
-            } catch (Exception ex) {
+            } catch (ExportException ex) {
+                logger.error("Export exception: {}", ex.getMessage());
+            }
+            catch (Exception ex) {
                 ex.printStackTrace();
             }
         }

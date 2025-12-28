@@ -1,6 +1,5 @@
 package mayton.bigdata.formatters;
 
-import mayton.bigdata.JdbcExportException;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.apache.avro.file.CodecFactory;
@@ -22,7 +21,8 @@ public class AvroFormatter implements ExportFormatter{
 
     @SuppressWarnings("java:S2629")
     @Override
-    public void export(ResultSet rs, String query, int columnCount, String[] columnNames, String[] columnTypes, OutputStream os, Map<String,String> props) throws Exception {
+    public void export(ResultSet rs, String query, int columnCount, String[] columnNames, String[] columnTypes, OutputStream os, Map<String,String> props) throws ExportException {
+
 
         SchemaBuilder.FieldAssembler<Schema> fieldAssembler = SchemaBuilder
                 .record("AvroFormatter") // TODO: Is it neccasary to add namespace?
@@ -35,7 +35,7 @@ public class AvroFormatter implements ExportFormatter{
                 case "BIGINT" -> fieldAssembler.optionalLong(columnNames[i]);
                 case "REAL", "DOUBLE PRECISION" -> fieldAssembler.optionalDouble(columnNames[i]);
                 case "BLOB" -> fieldAssembler.optionalString(columnNames[i]); // TODO: Hex encoded?
-                default -> throw new JdbcExportException("Unable to handle type " + columnTypes[i]);
+                default -> throw new ExportException("Unable to handle type " + columnTypes[i], ExportException.ExportErrorCode.SCHEMA_PHASE);
             }
         }
 
@@ -61,6 +61,8 @@ public class AvroFormatter implements ExportFormatter{
                 }
                 dataFileWriter.append(tableRecord);
             }
+        } catch (Exception e) {
+            throw new ExportException(e.getMessage(), ExportException.ExportErrorCode.DATA_PHASE);
         }
 
 

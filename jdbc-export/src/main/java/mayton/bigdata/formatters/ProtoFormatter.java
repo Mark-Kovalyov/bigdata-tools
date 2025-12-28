@@ -3,8 +3,6 @@ package mayton.bigdata.formatters;
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
-import com.google.protobuf.Message;
-import mayton.bigdata.JdbcExportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,12 +16,8 @@ public class ProtoFormatter implements ExportFormatter{
 
     static Logger logger = LoggerFactory.getLogger("proto-formatter");
 
-    private void exportSchema(int columnCount, String[] columnNames, String[] columnTypes, Map<String, String> props) {
-
-    }
-
-    private void exportData(ResultSet rs, String query, int columnCount, String[] columnNames, String[] columnTypes,
-                            OutputStream os, Map<String, String> props) throws SQLException, JdbcExportException, Descriptors.DescriptorValidationException {
+    public void export(ResultSet rs, String query, int columnCount, String[] columnNames, String[] columnTypes,
+                       OutputStream os, Map<String, String> props) throws ExportException {
 
         String table = props.get("table");
         DescriptorProtos.DescriptorProto.Builder protoBuilder = DescriptorProtos.DescriptorProto.newBuilder();
@@ -38,7 +32,7 @@ public class ProtoFormatter implements ExportFormatter{
                 case "REAL" -> fieldType = DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT;
                 case "DOUBLE PRECISION" -> fieldType = DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE;
                 case "BLOB" -> fieldType = DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES;
-                default -> throw new JdbcExportException("Unable to handle type " + columnTypes[i]);
+                default -> throw new ExportException("Unable to handle type " + columnTypes[i], ExportException.ExportErrorCode.SCHEMA_PHASE);
 
             }
             protoBuilder.addField(DescriptorProtos.FieldDescriptorProto.newBuilder()
@@ -48,39 +42,35 @@ public class ProtoFormatter implements ExportFormatter{
                     .setType(fieldType));
         }
 
-        DescriptorProtos.FileDescriptorProto fileDescriptorProto =
-                DescriptorProtos.FileDescriptorProto.newBuilder()
-                        .setName("person.proto")
-                        .setSyntax("proto3")
-                        .addMessageType(protoBuilder.build())
-                        .build();
+        try {
+            DescriptorProtos.FileDescriptorProto fileDescriptorProto =
+                    DescriptorProtos.FileDescriptorProto.newBuilder()
+                            .setName(table)
+                            .setSyntax("proto3")
+                            .addMessageType(protoBuilder.build())
+                            .build();
 
-        Descriptors.FileDescriptor descFile = Descriptors.FileDescriptor.buildFrom(fileDescriptorProto, new Descriptors.FileDescriptor[]{});
+            Descriptors.FileDescriptor descFile = Descriptors.FileDescriptor.buildFrom(fileDescriptorProto, new Descriptors.FileDescriptor[]{});
 
-        Descriptors.Descriptor descProto = descFile.findMessageTypeByName(table);
+            Descriptors.Descriptor descProto = descFile.findMessageTypeByName(table);
 
-        while(rs.next()) {
-            for(int i = 1 ; i <= columnCount ; i++) {
 
+            while (rs.next()) {
+                DynamicMessage.Builder messageBuilder = DynamicMessage.newBuilder(descProto);
+                for (int i = 1; i <= columnCount; i++) {
+                    if (rs.getObject(i) != null) {
+                        messageBuilder.setField(descProto.findFieldByName(columnNames[i]), rs.getObject(i));
+                    }
+                }
+                DynamicMessage message = messageBuilder.build();
+                message.writeTo(os);
             }
-            //DynamicMessage message = messageBuilder.build();
-            //message.writeTo(os);
-            //messageBuilder.clear();
+        } catch (Exception ex) {
+            throw new ExportException(ex.getMessage(), ExportException.ExportErrorCode.DATA_PHASE);
         }
 
-
-
-
     }
 
-    @Override
-    public void export(ResultSet rs, String query, int columnCount, String[] columnNames, String[] columnTypes,
-                       OutputStream os, Map<String, String> props) throws Exception {
-
-        exportSchema(columnCount, columnNames, columnTypes, props);
-        exportData(rs, query, columnCount, columnNames, columnTypes, os, props);
-
-    }
 
 
 }

@@ -16,8 +16,8 @@ Fieatures:
   - JSONLines (JSONL), text files with independent JSON in each Line
   - XML (via Woodstox XML)
   - AVRO
+  - protobuf (Google Protobuf) 
 - not supported yet, but planned:
-  - Google Protobuf Binary file
   - Apache Parquet and Delta Table
 
 # Exapmple
