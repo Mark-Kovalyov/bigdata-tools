@@ -11,8 +11,6 @@ import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import static java.lang.String.format;
-
 public class JdbcExport {
 
     static Logger logger = LoggerFactory.getLogger("jdbc-export");
@@ -31,10 +29,11 @@ public class JdbcExport {
                 .addRequiredOption("u", "url", true, "JDBC url. (ex:jdbc:oracle:thin@localhost:1521/XE")
                 .addOption("s", "schema", true, "Schema name")
                 .addOption("t", "table", true, "Table or View name")
-                .addOption("l", "columns", true, "Comma separated list of columns to export (default: all columns)")
-                .addOption("w", "where", true, "WHERE expression (ex: id > 1000)")
-                .addOption("c", "compression", true, "Optional parameter for Apache AVRO compression ex: snappy|deflate|bzip2")
-                .addRequiredOption("f", "format", true, "Export format: csv|jsonl|xml|avro|protobuf")
+                .addOption("q", "query", true, "SELECT-expression (ex: SELECT * FROM EMP)")
+                .addOption("c", "compression", true, "Optional parameter for AVRO and Parquet compression. See the documentation.")
+                .addOption("r", "recordname", true, "Optional parameter for AVRO and Parquet")
+                .addOption("n", "namespace", true, "Optional parameter for AVRO and Parquet")
+                .addRequiredOption("f", "format", true, "Export format: csv|jsonl|xml|avro|parquet")
                 .addRequiredOption("o", "outputfile", true, "Output file name (ex: emp.csv)");
     }
 
@@ -51,54 +50,37 @@ public class JdbcExport {
                 formatter.printHelp("\n\n" + LOGO + "\n", createOptions());
                 return;
             }
-
             String url    = line.getOptionValue("url");
             String schema = line.getOptionValue("schema");
             String table  = line.getOptionValue("table");
-            String where  = line.getOptionValue("where");
-            String columns  = line.getOptionValue("columns");
+            String query  = line.getOptionValue("query");
             String outputFile = line.getOptionValue("outputfile");
             String format = line.getOptionValue("format");
+            String queryStr = line.hasOption("query") ?
+                    query : String.format("SELECT * FROM %s.%s", schema, table);
 
-            StringBuilder queryStrBuilder = new StringBuilder("SELECT ");
-            if (line.hasOption("columns")) {
-                queryStrBuilder.append(columns);
-            } else {
-                queryStrBuilder.append("*");
-            }
-
-            queryStrBuilder.append(" FROM ");
             Map<String, String> props = new HashMap<>();
-
-            if (line.hasOption("schema")) {
-                props.put("schema", schema);
-                queryStrBuilder.append(schema).append(".");
-            }
-
-            if (line.hasOption("table")) {
-                props.put("table", table);
-                queryStrBuilder.append(table);
-                queryStrBuilder.append(" ");
-            }
-            if (line.hasOption("where")) {
-                queryStrBuilder.append(" WHERE ");
-                queryStrBuilder.append(where);
-            }
-
-            logger.info("Generated query: {}", queryStrBuilder.toString());
-
-            String queryStr = queryStrBuilder.toString();
 
             if (line.hasOption("compression")) {
                 props.put("compression", line.getOptionValue("compression"));
             }
 
+            if (line.hasOption("recordname")) {
+                props.put("recordname", line.getOptionValue("recordname"));
+            }
+
+            if (line.hasOption("namespace")) {
+                props.put("namespace", line.getOptionValue("namespace"));
+            }
+
+            props.put("table_name", "books"); // TODO: fix after CLI interface upgrade
+
             try (Connection conn = DriverManager.getConnection(url);
-                 OutputStream os = new FileOutputStream(outputFile)
+
             ) {
                 logger.info("Start analyze schema");
                 Statement st = conn.createStatement();
-                ResultSet rs = st.executeQuery(format(" %s LIMIT 1", queryStr));
+                ResultSet rs = st.executeQuery(String.format("%s LIMIT 1", queryStr));
                 ResultSetMetaData metaData = rs.getMetaData();
                 int columnCount = metaData.getColumnCount();
                 int    columnTypeCodes[] = new int[columnCount + 1];
@@ -117,22 +99,18 @@ public class JdbcExport {
                 logger.info("Start export");
                 ExportFormatter formatter = null;
                 switch (format) {
-                    case "csv"   : formatter = new CsvFormatter(); break;
-                    case "jsonl" : formatter = new JsonLineFormatter(); break;
-                    case "xml"   : formatter = new XmlFormatter(); break;
-                    case "avro"  : formatter = new AvroFormatter(); break;
-                    case "protobuf" : formatter = new ProtoFormatter(); break;
-
+                    case "csv"     : formatter = new CsvFormatter(); break;
+                    case "jsonl"   : formatter = new JsonLineFormatter(); break;
+                    case "xml"     : formatter = new XmlFormatter(); break;
+                    case "avro"    : formatter = new AvroFormatter(); break;
+                    case "parquet" : formatter = new ParquetFormatter(); break;
                     default:
-                        throw new ExportException("Unknown format : " + format);
+                        throw new JdbcExportException("Unknown format : " + format);
                 }
                 ResultSet rs2 = st.executeQuery(queryStr);
-                formatter.export(rs2, queryStr, columnCount, columnNames, columnTypeNames, os, props);
+                formatter.export(rs2, query, columnCount, columnNames, columnTypeNames, outputFile, props);
                 logger.info("Finish export");
-            } catch (ExportException ex) {
-                logger.error("Export exception: {}", ex.getMessage());
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }

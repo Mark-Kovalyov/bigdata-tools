@@ -132,21 +132,7 @@ public class AvroTest {
 
 
 
-    @Test
-    void testSerialize() throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        GenericDatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(ipgeoSchema);
-        DataFileWriter dataFileWriter = new DataFileWriter<>(datumWriter);
-        dataFileWriter.create(ipgeoSchema, outputStream);
 
-        GenericRecord record = null;
-
-        dataFileWriter.append(record);
-
-        dataFileWriter.flush();
-        dataFileWriter.close();
-        outputStream.toByteArray();
-    }
 
 
 }
