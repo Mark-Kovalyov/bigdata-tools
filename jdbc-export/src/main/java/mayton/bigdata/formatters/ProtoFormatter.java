@@ -16,7 +16,7 @@ public class ProtoFormatter implements ExportFormatter{
     static Logger logger = LoggerFactory.getLogger("proto-formatter");
 
     public void export(ResultSet rs, String query, int columnCount, String[] columnNames, String[] columnTypes,
-                       String path, Map<String, String> props) throws Exception {
+                       String path, Map<String, String> props) throws JdbcExportException {
 
         String table = props.get("table");
         DescriptorProtos.DescriptorProto.Builder protoBuilder = DescriptorProtos.DescriptorProto.newBuilder();

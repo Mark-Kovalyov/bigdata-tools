@@ -22,7 +22,8 @@ public class ParquetTest {
 
     @BeforeAll
     static void init() {
-        isLinux = System.getProperty("os.name").equals("linux");
+        String osName = System.getProperty("os.name");
+        isLinux = osName.equalsIgnoreCase("linux");
         temp = isLinux ? "/tmp" : "c:/tmp";
     }
 

@@ -22,7 +22,7 @@ public class ParquetFormatter implements ExportFormatter{
 
     @Override
     public void export(ResultSet rs, String query, int columnCount, String[] columnNames, String[] columnTypes,
-                       String path, Map<String, String> props) throws Exception {
+                       String path, Map<String, String> props) throws JdbcExportException {
 
         Path outputPath   = new Path(path);
         String recordName = props.getOrDefault("recordname", "");

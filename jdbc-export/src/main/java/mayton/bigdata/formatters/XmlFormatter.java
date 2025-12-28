@@ -1,12 +1,15 @@
 package mayton.bigdata.formatters;
 
 import com.ctc.wstx.stax.WstxOutputFactory;
+import mayton.bigdata.JdbcExportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InvalidObjectException;
 import java.io.OutputStream;
 import java.sql.ResultSet;
 import java.util.Map;
@@ -29,31 +32,32 @@ public class XmlFormatter implements ExportFormatter{
 
     @Override
     @SuppressWarnings("java:S2629")
-    public void export(ResultSet rs, String query, int columnCount, String[] columnNames, String[] columnTypes, String path, Map<String,String> props) throws Exception {
-        //XMLOutputFactory factory = XMLOutputFactory.newInstance();
-        XMLOutputFactory factory = new WstxOutputFactory(); // TODO: What is the best XmlFactory? Woodstock? Com.sun.Xml?
+    public void export(ResultSet rs, String query, int columnCount, String[] columnNames, String[] columnTypes,
+                       String path, Map<String,String> props) throws JdbcExportException {
+        XMLOutputFactory factory = new WstxOutputFactory();
         factory.setProperty("javax.xml.stream.isRepairingNamespaces", true);
-        //factory.setProperty("com.ctc.wstx.outputIndentation", "  "); // 2 spaces
         logger.info("factory class created {}", factory.getClass());
-        // com.sun.xml.internal.stream.XMLOutputFactoryImpl@74bf1791
-        // com.ctc.wstx.stax.WstxOutputFactory@5c2375a9
-        // C l   a u   d  i  o   
-        // 43 6c 61 75 64 69 6f  \u1f20
-        XMLStreamWriter writer = factory.createXMLStreamWriter(new FileOutputStream(path), "utf-8");
-        writer.writeStartDocument();
-        writer.writeStartElement("table");
-        while (rs.next()) {
-            writer.writeStartElement("row");
-            for (int i = 1; i <= columnCount; i++) {
-                if (rs.getObject(i) != null) {
-                    String v = sanitizeForXml(rs.getString(i));
-                    writer.writeAttribute(columnNames[i], v);
+        try(OutputStream fos = new FileOutputStream(path)) {
+            XMLStreamWriter writer = factory.createXMLStreamWriter(fos, "utf-8");
+            writer.writeStartDocument();
+            writer.writeStartElement("table");
+            while (rs.next()) {
+                writer.writeStartElement("row");
+                for (int i = 1; i <= columnCount; i++) {
+                    if (rs.getObject(i) != null) {
+                        String v = sanitizeForXml(rs.getString(i));
+                        writer.writeAttribute(columnNames[i], v);
+                    }
                 }
+                writer.writeEndElement();
             }
             writer.writeEndElement();
+            writer.writeEndDocument();
+            writer.flush();
+        } catch (IOException e) {
+            throw new JdbcExportException("IOException during export: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new JdbcExportException("Exception during export: " + e.getMessage(), e);
         }
-        writer.writeEndElement();
-        writer.writeEndDocument();
-        writer.flush();
     }
 }

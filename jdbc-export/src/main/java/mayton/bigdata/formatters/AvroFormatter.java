@@ -23,7 +23,8 @@ public class AvroFormatter implements ExportFormatter{
 
     @SuppressWarnings("java:S2629")
     @Override
-    public void export(ResultSet rs, String query, int columnCount, String[] columnNames, String[] columnTypes, String path, Map<String,String> props) throws Exception {
+    public void export(ResultSet rs, String query, int columnCount, String[] columnNames, String[] columnTypes,
+                       String path, Map<String,String> props) throws JdbcExportException {
 
         String recordName = props.getOrDefault("recordname", "");
         String nameSpace = props.getOrDefault("namespace", "");
