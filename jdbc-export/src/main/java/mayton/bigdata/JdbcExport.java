@@ -24,9 +24,7 @@ public class JdbcExport {
     static Options createOptions() {
         return new Options()
                 .addRequiredOption("u", "url", true, "JDBC url. (ex:jdbc:oracle:thin@localhost:1521/XE")
-                .addOption("s", "schema", true, "Schema name")
-                .addOption("t", "table", true, "Table or View name")
-                .addOption("q", "query", true, "SELECT-expression (ex: SELECT * FROM EMP)")
+                .addRequiredOption("q", "query", true, "SELECT-expression (ex: SELECT * FROM EMP)")
                 .addOption("c", "compression", true, "Optional parameter for AVRO and Parquet compression. See the documentation.")
                 .addOption("r", "recordname", true, "Optional parameter for AVRO and Parquet")
                 .addOption("n", "namespace", true, "Optional parameter for AVRO and Parquet")
@@ -48,13 +46,9 @@ public class JdbcExport {
                 return;
             }
             String url    = line.getOptionValue("url");
-            String schema = line.getOptionValue("schema");
-            String table  = line.getOptionValue("table");
             String query  = line.getOptionValue("query");
             String outputFile = line.getOptionValue("outputfile");
             String format = line.getOptionValue("format");
-            String queryStr = line.hasOption("query") ?
-                    query : String.format("SELECT * FROM %s.%s", schema, table);
 
             Map<String, String> props = new HashMap<>();
 
@@ -70,16 +64,16 @@ public class JdbcExport {
                 props.put("namespace", line.getOptionValue("namespace"));
             }
 
-            props.put("table_name", "books"); // TODO: fix after CLI interface upgrade
+
 
             try (Connection conn = DriverManager.getConnection(url)) {
                 logger.info("Start analyze schema");
                 Statement st = conn.createStatement();
-                ResultSet rs = st.executeQuery(String.format("%s LIMIT 1", queryStr));
+                ResultSet rs = st.executeQuery(String.format("%s LIMIT 1", query));
                 ResultSetMetaData metaData = rs.getMetaData();
                 int columnCount = metaData.getColumnCount();
-                String columnTypeNames[] = new String[columnCount + 1];
-                String columnNames[]     = new String[columnCount + 1];
+                String []columnTypeNames = new String[columnCount + 1];
+                String []columnNames     = new String[columnCount + 1];
                 for (int i = 1; i <= columnCount; i++) {
                     String columnName = metaData.getColumnName(i);
                     String columnTypeName = metaData.getColumnTypeName(i);
@@ -101,7 +95,7 @@ public class JdbcExport {
                     default:
                         throw new JdbcExportException("Unknown format : " + format);
                 }
-                ResultSet rs2 = st.executeQuery(queryStr);
+                ResultSet rs2 = st.executeQuery(query);
                 formatter.export(rs2, query, columnCount, columnNames, columnTypeNames, outputFile, props);
                 logger.info("Finish export");
             } catch (Exception ex) {
