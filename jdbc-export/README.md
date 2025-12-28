@@ -131,7 +131,13 @@ the good balance between size and time overhead.
 We use Jsonitier library to write JSON files. We are not sure is it fully covers ECMA-404 specification. 
 The main goal - to speed up the writing stream of chars much more quickly, so some Unicode characters can be incorrectly wrapped.
 
-## Custom JDK
+## Custom OS notes
+
+| Export Format  | OS       | Status     |
+|----------------|----------|------------|
+| Apache Parquet | Windows  | Not tested |
+
+## Custom JDK notes
 
 The tool is tested with OpenJDK 17. Other JDKs can work incorrectly.
 If you need to change you current JDK, you can use Conda environment 

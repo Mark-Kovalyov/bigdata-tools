@@ -4,9 +4,6 @@ import mayton.bigdata.formatters.*;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +30,7 @@ public class JdbcExport {
                 .addOption("c", "compression", true, "Optional parameter for AVRO and Parquet compression. See the documentation.")
                 .addOption("r", "recordname", true, "Optional parameter for AVRO and Parquet")
                 .addOption("n", "namespace", true, "Optional parameter for AVRO and Parquet")
-                .addRequiredOption("f", "format", true, "Export format: csv|jsonl|xml|avro|parquet")
+                .addRequiredOption("f", "format", true, "Export format: csv|jsonl|xml|avro|parquet|protobuf")
                 .addRequiredOption("o", "outputfile", true, "Output file name (ex: emp.csv)");
     }
 
@@ -75,15 +72,12 @@ public class JdbcExport {
 
             props.put("table_name", "books"); // TODO: fix after CLI interface upgrade
 
-            try (Connection conn = DriverManager.getConnection(url);
-
-            ) {
+            try (Connection conn = DriverManager.getConnection(url)) {
                 logger.info("Start analyze schema");
                 Statement st = conn.createStatement();
                 ResultSet rs = st.executeQuery(String.format("%s LIMIT 1", queryStr));
                 ResultSetMetaData metaData = rs.getMetaData();
                 int columnCount = metaData.getColumnCount();
-                int    columnTypeCodes[] = new int[columnCount + 1];
                 String columnTypeNames[] = new String[columnCount + 1];
                 String columnNames[]     = new String[columnCount + 1];
                 for (int i = 1; i <= columnCount; i++) {
@@ -91,7 +85,6 @@ public class JdbcExport {
                     String columnTypeName = metaData.getColumnTypeName(i);
                     int columnTypeCode = metaData.getColumnType(i);
                     logger.info("Column {}: {} ({}, JDBC type {})", i, columnTypeNames, columnTypeName, columnTypeCode);
-                    columnTypeCodes[i] = columnTypeCode;
                     columnTypeNames[i] = columnTypeName;
                     columnNames[i] = columnName;
                 }
@@ -104,6 +97,7 @@ public class JdbcExport {
                     case "xml"     : formatter = new XmlFormatter(); break;
                     case "avro"    : formatter = new AvroFormatter(); break;
                     case "parquet" : formatter = new ParquetFormatter(); break;
+                    case "protobuf": formatter = new ProtoFormatter(); break;
                     default:
                         throw new JdbcExportException("Unknown format : " + format);
                 }
@@ -111,7 +105,7 @@ public class JdbcExport {
                 formatter.export(rs2, query, columnCount, columnNames, columnTypeNames, outputFile, props);
                 logger.info("Finish export");
             } catch (Exception ex) {
-                ex.printStackTrace();
+                logger.error("{}", ex.getMessage());
             }
         }
     }
