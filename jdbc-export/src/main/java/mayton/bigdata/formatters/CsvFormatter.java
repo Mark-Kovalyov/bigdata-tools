@@ -19,6 +19,7 @@ public class CsvFormatter implements ExportFormatter {
                 .quoteStrategy(QuoteStrategies.ALWAYS)
                 .build(new FileOutputStream(path))) {
             String[] row = new String[columnCount];
+            // TODO: Consider to replace with System.arraycopy(columnNames, 1, row, 0, columnCount);
             for (int i = 1; i <= columnCount; i++) {
                 row[i - 1] = columnNames[i];
             }

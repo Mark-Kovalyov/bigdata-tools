@@ -27,10 +27,10 @@ public class ProtoFormatter implements ExportFormatter{
             switch (columnTypes[i]) {
                 case "TEXT", "CHARACTER VARYING" -> fieldType = DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING;
                 case "INT", "INTEGER", "NUMERIC" -> fieldType = DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT32;
-                case "BIGINT" -> fieldType = DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64;
-                case "REAL" -> fieldType = DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT;
-                case "DOUBLE PRECISION" -> fieldType = DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE;
-                case "BLOB" -> fieldType = DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES;
+                case "BIGINT"                    -> fieldType = DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64;
+                case "REAL"                      -> fieldType = DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT;
+                case "DOUBLE PRECISION"          -> fieldType = DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE;
+                case "BLOB"                      -> fieldType = DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES;
                 default -> throw new JdbcExportException("Unable to handle type " + columnTypes[i]);
 
             }
