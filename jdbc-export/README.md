@@ -33,14 +33,15 @@ $ java -jar jdbc-export.jar
 /\_| || |_/|| |_\\|  \__\____\|  /_  /  \ |  __/| \_/||    / | |
 \____/\____/\____/\____/      \____\/__/\\\_/   \____/\_/\_\ \_/
 
- -c,--compression <arg>   Optional parameter for Apache AVRO compression
-                          ex: snappy|deflate|bzip2
- -f,--format <arg>        Export format: csv|jsonl|xml|avro|parquet|protobuf
+ -c,--compression <arg>   Optional parameter for AVRO and Parquet
+                          compression. See the documentation.
+ -f,--format <arg>        Export format:
+                          csv|jsonl|xml|avro|parquet|protobuf
+ -n,--namespace <arg>     Optional parameter for AVRO and Parquet
  -o,--outputfile <arg>    Output file name (ex: emp.csv)
  -q,--query <arg>         SELECT-expression (ex: SELECT * FROM EMP)
- -s,--schema <arg>        Schema name
- -t,--table <arg>         Table or View name
- -u,--url <arg>           JDBC url. (ex:jdbc:oracle:thin@localhost:1521/XE)
+ -r,--recordname <arg>    Optional parameter for AVRO and Parquet
+ -u,--url <arg>           JDBC url. (ex:jdbc:oracle:thin@localhost:1521/XE
 ```
 
 ## 1) Export Oracle table scott.emp into CSV file:
@@ -79,7 +80,7 @@ java -jar jdbc-export.jar \
      --outputfile /bigdata/tpb.sbappy.parquet
 ```
 
-# Specifications and examples:
+# Appendix:
 
 ## JDBC driver urls for network connection for different types of DBMS:
 | DBMS          | Driver                          | Connection string examples                                              | Desc                    |

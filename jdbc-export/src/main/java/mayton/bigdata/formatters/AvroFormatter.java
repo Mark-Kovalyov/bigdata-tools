@@ -13,10 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.sql.ResultSet;
 import java.util.Map;
 
+@SuppressWarnings("java:S1135")
 public class AvroFormatter implements ExportFormatter{
 
     static Logger logger = LoggerFactory.getLogger("avro-formatter");

@@ -8,11 +8,12 @@ import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings("java:S1192")
 public class JdbcExport {
 
     static Logger logger = LoggerFactory.getLogger("jdbc-export");
 
-    static String LOGO =
+    static String logo =
             """
                 _  ____  ____  ____        ________  _ ____  ____  ____ _____\s
                / |/  _ \\/  __\\/   _\\      /  __/\\  \\///  __\\/  _ \\/  __Y__ __\\
@@ -37,12 +38,12 @@ public class JdbcExport {
         Options options = createOptions();
         if (args.length == 0) {
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("\n\n" + LOGO + "\n", createOptions());
+            formatter.printHelp("\n\n" + logo + "\n", createOptions());
         } else {
             CommandLine line = parser.parse(options, args);
             if (line.hasOption("h")) {
                 HelpFormatter formatter = new HelpFormatter();
-                formatter.printHelp("\n\n" + LOGO + "\n", createOptions());
+                formatter.printHelp("\n\n" + logo + "\n", createOptions());
                 return;
             }
             String url    = line.getOptionValue("url");
@@ -66,9 +67,9 @@ public class JdbcExport {
 
 
 
-            try (Connection conn = DriverManager.getConnection(url)) {
+            try (Connection conn = DriverManager.getConnection(url);
+                 Statement st = conn.createStatement()) {
                 logger.info("Start analyze schema");
-                Statement st = conn.createStatement();
                 ResultSet rs = st.executeQuery(String.format("%s LIMIT 1", query));
                 ResultSetMetaData metaData = rs.getMetaData();
                 int columnCount = metaData.getColumnCount();

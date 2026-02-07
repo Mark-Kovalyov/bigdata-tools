@@ -2,6 +2,7 @@ package mayton.bigdata.formatters;
 
 import com.jsoniter.output.JsonStream;
 import mayton.bigdata.JdbcExportException;
+import org.apache.commons.codec.binary.Hex;
 
 import java.io.*;
 import java.sql.Blob;
@@ -9,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 
+@SuppressWarnings("java:S1135")
 public class JsonLineFormatter implements ExportFormatter {
     @Override
     public void export(ResultSet rs, String query, int columnCount, String[] columnNames, String[] columnTypes,
@@ -36,8 +38,8 @@ public class JsonLineFormatter implements ExportFormatter {
                             case "REAL", "DOUBLE PRECISION" -> stream.writeVal(rs.getDouble(i));
                             case "BLOB" -> {
                                 Blob blob = rs.getBlob(i);
-                                // TODO: encode bytes as BinHex
-                                stream.writeVal("<blob is here>");
+                                // TODO: Not tested yet
+                                stream.writeVal(Hex.encodeHexString(blob.getBytes(0, (int) blob.length())));
                             }
                             default -> throw new JdbcExportException("Unable to handle type " + columnTypes[i]);
                         }
