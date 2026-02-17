@@ -1,0 +1,14 @@
+sqlite:
+  driver: ""
+  connectionStrin: ""
+
+containers:
+  - raw
+
+blobname:
+  regex: ".+\\.(parquet|json|gz|avro)$"
+
+envs:
+  - label: "Dev"
+    dfsEndpoint : ""
+    connectionString : "***"
